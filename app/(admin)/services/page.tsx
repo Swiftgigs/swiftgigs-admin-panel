@@ -1,16 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Database, Pencil, Plus, Trash2 } from "lucide-react";
+import { Database, FolderPlus, Pencil, Plus, Trash2 } from "lucide-react";
 import { api, useApi } from "@/lib/api";
 import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PageHeader, SearchInput, Select, Spinner, Textarea, useAction, useFeedback } from "@/components/ui";
 import type { ServiceItem } from "@/lib/types";
 
 const NEW_CATEGORY = "__new__";
 
-function ServiceModal({ service, categories, open, onClose, onSaved }: { service: ServiceItem | null; categories: string[]; open: boolean; onClose: () => void; onSaved: () => void }) {
+type AddMode = { category?: string; newCategory?: boolean };
+
+function ServiceModal({ service, categories, open, onClose, onSaved, mode }: { service: ServiceItem | null; categories: string[]; open: boolean; onClose: () => void; onSaved: () => void; mode?: AddMode }) {
   const [name, setName] = useState(service?.service || "");
-  const [category, setCategory] = useState(service?.category || categories[0] || NEW_CATEGORY);
+  const [category, setCategory] = useState(service?.category || (mode?.newCategory ? NEW_CATEGORY : mode?.category || categories[0] || NEW_CATEGORY));
   const [newCategory, setNewCategory] = useState("");
   const [description, setDescription] = useState(service?.description || "");
   const { run, busy } = useAction();
@@ -28,8 +30,8 @@ function ServiceModal({ service, categories, open, onClose, onSaved }: { service
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={service ? "Edit service" : "Add service"} description="Changes refresh the bot's service cache immediately."
-      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={busy} disabled={!name.trim() || !resolvedCategory} onClick={save}>{service ? "Save changes" : "Add service"}</Button></>}>
+    <Modal open={open} onClose={onClose} title={service ? "Edit service" : mode?.newCategory ? "Add category" : "Add service"} description={mode?.newCategory ? "A category appears once it has a service, so add the first one now." : "Changes refresh the bot's service cache immediately."}
+      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={busy} disabled={!name.trim() || !resolvedCategory} onClick={save}>{service ? "Save changes" : mode?.newCategory ? "Add category" : "Add service"}</Button></>}>
       <div className="space-y-4">
         <Field label="Service name" hint="Shown to customers in WhatsApp, e.g. “Plumbing”.">{(id) => <Input id={id} value={name} onChange={(event) => setName(event.target.value)} />}</Field>
         <Field label="Category">
@@ -51,7 +53,7 @@ export default function ServicesPage() {
   const { data, error, loading, reload } = useApi<{ data: ServiceItem[] }>("services");
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<ServiceItem | null>(null);
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState<AddMode | null>(null);
   const { confirm } = useFeedback();
   const { run, busy } = useAction();
 
@@ -81,7 +83,7 @@ export default function ServicesPage() {
       <PageHeader
         title="Services"
         description="The catalogue of tasks customers can request, grouped by category."
-        actions={<><Button variant="secondary" loading={busy} onClick={seed}><Database className="size-4" aria-hidden />Seed defaults</Button><Button onClick={() => setAdding(true)}><Plus className="size-4" aria-hidden />Add service</Button></>}
+        actions={<><Button variant="secondary" loading={busy} onClick={seed}><Database className="size-4" aria-hidden />Seed defaults</Button><Button variant="secondary" onClick={() => setAdding({ newCategory: true })}><FolderPlus className="size-4" aria-hidden />Add category</Button><Button onClick={() => setAdding({})}><Plus className="size-4" aria-hidden />Add service</Button></>}
       />
       <div className="mb-4"><SearchInput value={search} onChange={setSearch} placeholder="Search services…" /></div>
 
@@ -94,7 +96,10 @@ export default function ServicesPage() {
           <Card key={category} className="overflow-hidden">
             <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2.5">
               <h2 className="font-display font-bold text-ink">{category}</h2>
-              <Badge tone="brand">{items.length}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge tone="brand">{items.length}</Badge>
+                <Button size="sm" variant="ghost" aria-label={`Add service to ${category}`} onClick={() => setAdding({ category })}><Plus className="size-4" /></Button>
+              </div>
             </div>
             <ul className="divide-y divide-border">
               {items.map((item) => (
@@ -115,7 +120,7 @@ export default function ServicesPage() {
         ))}
       </div>
 
-      <ServiceModal key={`add-${adding}`} service={null} categories={categories} open={adding} onClose={() => setAdding(false)} onSaved={reload} />
+      <ServiceModal key={JSON.stringify(adding)} service={null} categories={categories} open={Boolean(adding)} mode={adding ?? undefined} onClose={() => setAdding(null)} onSaved={reload} />
       <ServiceModal key={editing?.slug ?? "edit"} service={editing} categories={categories} open={Boolean(editing)} onClose={() => setEditing(null)} onSaved={reload} />
     </>
   );

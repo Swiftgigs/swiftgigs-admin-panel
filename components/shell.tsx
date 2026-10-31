@@ -53,10 +53,11 @@ function NavLinks({ admin, onNavigate }: { admin: Admin; onNavigate?: () => void
 
 function Brand() {
   return (
-    <Link href="/" className="flex items-center gap-2.5 px-2">
+    <Link href="/" aria-label="Swiftgigs Admin" className="flex items-center px-2">
+      {/* The icon is the "S", so the wordmark continues as "wiftgigs". */}
       <Image src="/logo-icon.png" alt="" width={32} height={32} className="size-8" />
-      <span className="font-display text-lg font-bold tracking-tight text-primary">Swiftgigs</span>
-      <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">Admin</span>
+      <span aria-hidden className="-ml-1 font-display text-lg font-bold tracking-tight text-primary">wiftgigs</span>
+      <span className="ml-2.5 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">Admin</span>
     </Link>
   );
 }
