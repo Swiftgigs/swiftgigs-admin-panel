@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
+/* Palette shared with swiftgigs-landing-page so the admin panel reads as the same product. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand: #8657a2;
+  --background: oklch(0.985 0.0035 95);
+  --foreground: oklch(0.24 0.03 310);
+  --ink: oklch(0.2 0.028 305);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.03 310);
+  --primary: var(--brand);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.945 0.03 300);
+  --secondary-foreground: var(--brand);
+  --muted: oklch(0.955 0.008 300);
+  --muted-foreground: oklch(0.52 0.022 305);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.5 0.17 142);
+  --warning: oklch(0.62 0.15 70);
+  --border: oklch(0.918 0.012 300);
+  --input: oklch(0.94 0.01 300);
+  --ring: var(--brand);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.03 289);
 }
 
 @theme inline {
+  --font-sans: var(--font-geist-sans), "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-bricolage), var(--font-geist-sans), sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scrollbar-color: color-mix(in oklab, var(--primary) 78%, transparent) color-mix(in oklab, var(--muted) 75%, transparent);
+    scrollbar-width: thin;
+  }
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    min-width: 320px;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 28%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--ring) 60%, transparent);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+dialog::backdrop {
+  background: color-mix(in oklab, var(--ink) 45%, transparent);
+  backdrop-filter: blur(2px);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Markdown preview in the blog editor */
+.prose-preview { line-height: 1.7; font-size: 0.95rem; }
+.prose-preview h1, .prose-preview h2, .prose-preview h3, .prose-preview h4 { font-family: var(--font-display); font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin: 1.6em 0 0.5em; line-height: 1.2; }
+.prose-preview h1 { font-size: 1.75rem; } .prose-preview h2 { font-size: 1.4rem; } .prose-preview h3 { font-size: 1.15rem; }
+.prose-preview p, .prose-preview ul, .prose-preview ol, .prose-preview blockquote, .prose-preview pre { margin: 0 0 1em; }
+.prose-preview ul { list-style: disc; padding-left: 1.4em; } .prose-preview ol { list-style: decimal; padding-left: 1.4em; }
+.prose-preview a { color: var(--primary); text-decoration: underline; }
+.prose-preview blockquote { border-left: 3px solid var(--primary); padding-left: 1em; color: var(--muted-foreground); }
+.prose-preview code { background: var(--muted); padding: 0.1em 0.35em; border-radius: 4px; font-family: var(--font-mono); font-size: 0.88em; }
+.prose-preview pre { background: var(--ink); color: #fff; padding: 1em; border-radius: 8px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; }
+.prose-preview img { max-width: 100%; border-radius: 8px; }
+.prose-preview hr { margin: 1.5em 0; }
